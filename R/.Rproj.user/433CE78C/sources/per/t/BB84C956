@@ -1,0 +1,32 @@
+{
+    "id": "BB84C956",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1615409157560.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "expression": "saidamc",
+        "caption": "saidamc",
+        "totalObservations": "480",
+        "displayedObservations": "480",
+        "variables": "11",
+        "cacheKey": "29F6C98F",
+        "object": "saidamc",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=saidamc&cache_key=29F6C98F&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 0,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1615409157560,
+    "read_only": false,
+    "read_only_alternatives": []
+}

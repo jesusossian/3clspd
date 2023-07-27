@@ -1,0 +1,32 @@
+{
+    "id": "2D606431",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1615396660211.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "expression": "saida",
+        "caption": "saida",
+        "totalObservations": "1920",
+        "displayedObservations": "1920",
+        "variables": "7",
+        "cacheKey": "5AC1C119",
+        "object": "saida",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=saida&cache_key=5AC1C119&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 94345933918464,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1615396660211,
+    "read_only": false,
+    "read_only_alternatives": []
+}

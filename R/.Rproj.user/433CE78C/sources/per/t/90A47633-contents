@@ -1,0 +1,406 @@
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(xtable)
+library(readr)
+library(psych)
+
+
+T <- 30
+
+
+
+insttype <- 'unbal'
+N<-50
+#Small
+saidastd <- read_delim(paste("uncap_",insttype,"_std_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE)
+saidabcstd <- read_delim(paste("uncap_",insttype,"_bcstd_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE)
+saida3level <- read_delim(paste("uncap_",insttype,"_3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE)
+saidabc3level <- read_delim(paste("uncap_",insttype,"_bc3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE)
+
+insttype <- 'bal'
+saidastd <- rbind(saidastd,read_delim(paste("uncap_",insttype,"_std_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+saidabcstd <- rbind(saidabcstd,read_delim(paste("uncap_",insttype,"_bcstd_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+saida3level <- rbind(saida3level,read_delim(paste("uncap_",insttype,"_3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+saidabc3level <- rbind(saidabc3level,read_delim(paste("uncap_",insttype,"_bc3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+
+
+
+
+
+for (insttype in c('bal','unbal')){
+  for(N in list(100,200)){
+    saidastd <- rbind(saidastd,read_delim(paste("uncap_",insttype,"_std_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+    saidabcstd <- rbind(saidabcstd,read_delim(paste("uncap_",insttype,"_bcstd_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+    saida3level <- rbind(saida3level,read_delim(paste("uncap_",insttype,"_3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+    saidabc3level <- rbind(saidabc3level,read_delim(paste("uncap_",insttype,"_bc3level_N",N,"_T",T,"_result.csv",sep=""), ";", escape_double = FALSE, trim_ws = TRUE))
+  }
+}
+
+saida3level$disablesolver <- NA
+
+
+##Clean up data 
+# remove data in wrong output csv
+saidastd <- subset(saidastd,form=="std")
+saidabcstd <- subset(saidabcstd,form=="bcstd")
+saida3level <- subset(saida3level,form=="3level")
+saidabc3level <- subset(saidabc3level,form=="bc3level")
+#remove repeated executions for same instance
+#dflist <- list(saidastd,saidabcstd,saida3level,saidabc3level)
+#for (df in dflist){
+#  df <- distinct(df,instance, .keep_all = TRUE)
+#}
+
+
+
+saidastd$opt <- 0
+saidabcstd$opt <- 0
+saida3level$opt <- 0
+saidabc3level$opt <- 0
+for (i in 1:nrow(saidastd)){
+  saidastd[i,]$opt <- ifelse( 100*(saidastd[i,]$bestsol - saidastd[i,]$bestbound)/saidastd[i,]$bestsol < 0.001,1,0)
+  saidabcstd[i,]$opt <- ifelse( 100*(saidabcstd[i,]$bestsol - saidabcstd[i,]$bestbound)/saidabcstd[i,]$bestsol < 0.001,1,0)
+  saida3level[i,]$opt <- ifelse( 100*(saida3level[i,]$bestsol - saida3level[i,]$bestbound)/saida3level[i,]$bestsol < 0.001,1,0)
+  saidabc3level[i,]$opt <- ifelse( 100*(saidabc3level[i,]$bestsol - saidabc3level[i,]$bestbound)/saidabc3level[i,]$bestsol < 0.001,1,0)
+}
+
+
+
+
+
+
+
+#  if (str_detect(testeRand[i,]$instance,"N50")){
+#    testeRand[i,]$NR <- 50
+
+
+
+mat <- matrix(0, ncol = 4, nrow = 4)
+rownames(mat) <- c("STD","3LF","STD+","3LF+")
+colnames(mat) <- c("|R|=50","|R|=100","|R|=200","ALL")
+
+mattime <- matrix(0, ncol = 4, nrow = 4)
+rownames(mattime) <- c("STD","3LF","STD+","3LF+")
+colnames(mattime) <- c("|R|=50","|R|=100","|R|=200","ALL")
+
+#Plot percentage of solved instances
+
+types <- c("N50","N100","N200","ALL")
+
+
+
+opt.std.N50 <- 0
+opt.std.N100 <- 0
+opt.std.N200 <- 0
+time.std.N50 <- 0
+time.std.N100 <- 0
+time.std.N200 <- 0
+opt.bcstd.N50 <- 0
+opt.bcstd.N100 <- 0
+opt.bcstd.N200 <- 0
+time.bcstd.N50 <- 0
+time.bcstd.N100 <- 0
+time.bcstd.N200 <- 0
+opt.3level.N50 <- 0
+opt.3level.N100 <- 0
+opt.3level.N200 <- 0
+time.3level.N50 <- 0
+time.3level.N100 <- 0
+time.3level.N200 <- 0
+opt.bc3level.N50 <- 0
+opt.bc3level.N100 <- 0
+opt.bc3level.N200 <- 0
+time.bc3level.N50 <- 0
+time.bc3level.N100 <- 0
+time.bc3level.N200 <- 0
+
+
+
+nrows.N50 <- 0
+nrows.N100 <- 0
+nrows.N200 <- 0
+
+
+
+
+for (i in 1:nrow(saidastd) ){
+  
+  if (str_detect(saidastd[i,]$instance,"N50")){
+    opt.std.N50 <- opt.std.N50 + saidastd[i,]$opt
+    time.std.N50 <- time.std.N50 + saidastd[i,]$time
+    opt.bcstd.N50 <- opt.bcstd.N50 + saidabcstd[i,]$opt
+    time.bcstd.N50 <- time.bcstd.N50 + saidabcstd[i,]$time
+    opt.3level.N50 <- opt.3level.N50 + saida3level[i,]$opt
+    time.3level.N50 <- time.3level.N50 + saida3level[i,]$time
+    opt.bc3level.N50 <- opt.bc3level.N50 + saidabc3level[i,]$opt
+    time.bc3level.N50 <- time.bc3level.N50 + saidabc3level[i,]$time
+    
+    nrows.N50 <- nrows.N50 + 1
+  }else{
+    if(str_detect(saidastd[i,]$instance,"N100")){
+      opt.std.N100 <- opt.std.N100 + saidastd[i,]$opt
+      time.std.N100 <- time.std.N100 + saidastd[i,]$time
+      opt.bcstd.N100 <- opt.bcstd.N100 + saidabcstd[i,]$opt
+      time.bcstd.N100 <- time.bcstd.N100 + saidabcstd[i,]$time
+      opt.3level.N100 <- opt.3level.N100 + saida3level[i,]$opt
+      time.3level.N100 <- time.3level.N100 + saida3level[i,]$time
+      opt.bc3level.N100 <- opt.bc3level.N100 + saidabc3level[i,]$opt
+      time.bc3level.N100 <- time.bc3level.N100 + saidabc3level[i,]$time
+      
+      
+      nrows.N100 <- nrows.N100 + 1
+    }else{
+      if(str_detect(saidastd[i,]$instance,"N200")){
+        opt.std.N200 <- opt.std.N200 + saidastd[i,]$opt
+        time.std.N200 <- time.std.N200 + saidastd[i,]$time
+        opt.bcstd.N200 <- opt.bcstd.N200 + saidabcstd[i,]$opt
+        time.bcstd.N200 <- time.bcstd.N200 + saidabcstd[i,]$time
+        opt.3level.N200 <- opt.3level.N200 + saida3level[i,]$opt
+        time.3level.N200 <- time.3level.N200 + saida3level[i,]$time
+        opt.bc3level.N200 <- opt.bc3level.N200 + saidabc3level[i,]$opt
+        time.bc3level.N200 <- time.bc3level.N200 + saidabc3level[i,]$time
+        
+        nrows.N200 <- nrows.N200 + 1
+      }
+    }
+  }
+
+
+}
+  
+  
+  
+  #std
+  perc <- 100 * opt.std.N50/nrows.N50
+  mat[1,1] <- perc
+  
+  perc <- 100 * opt.std.N100/nrows.N100
+  mat[1,2] <- perc
+  
+  perc <- 100 * opt.std.N200/nrows.N200
+  mat[1,3] <- perc
+  
+  perc <- 100 * (opt.std.N50+opt.std.N100+opt.std.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mat[1,4] <- perc
+  
+  #bcstd
+  perc <- 100 * opt.bcstd.N50/nrows.N50
+  mat[2,1] <- perc
+  
+  perc <- 100 * opt.bcstd.N100/nrows.N100
+  mat[2,2] <- perc
+  
+  perc <- 100 * opt.bcstd.N200/nrows.N200
+  mat[2,3] <- perc
+  
+  perc <- 100 * (opt.bcstd.N50+opt.bcstd.N100+opt.bcstd.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mat[2,4] <- perc
+  
+  #3level
+  perc <- 100 * opt.3level.N50/nrows.N50
+  mat[3,1] <- perc
+  
+  perc <- 100 * opt.3level.N100/nrows.N100
+  mat[3,2] <- perc
+  
+  perc <- 100 * opt.3level.N200/nrows.N200
+  mat[3,3] <- perc
+  
+  perc <- 100 * (opt.3level.N50+opt.3level.N100+opt.3level.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mat[3,4] <- perc
+  
+  
+  #bc3level
+  perc <- 100 * opt.bc3level.N50/nrows.N50
+  mat[4,1] <- perc
+  
+  perc <- 100 * opt.bc3level.N100/nrows.N100
+  mat[4,2] <- perc
+  
+  perc <- 100 * opt.bc3level.N200/nrows.N200
+  mat[4,3] <- perc
+  
+  perc <- 100 * (opt.bc3level.N50+opt.bc3level.N100+opt.bc3level.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mat[4,4] <- perc
+  
+ 
+  #time
+  #std
+  avgtime <- time.std.N50/nrows.N50
+  mattime[1,1] <- avgtime
+  
+  avgtime <-  time.std.N100/nrows.N100
+  mattime[1,2] <- avgtime
+  
+  avgtime <-  time.std.N200/nrows.N200
+  mattime[1,3] <- avgtime
+  
+  avgtime <-  (time.std.N50+time.std.N100+time.std.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mattime[1,4] <- avgtime
+  
+  #bcstd
+  avgtime <-  time.bcstd.N50/nrows.N50
+  mattime[2,1] <- avgtime
+  
+  avgtime <-  time.bcstd.N100/nrows.N100
+  mattime[2,2] <- avgtime
+  
+  avgtime <-  time.bcstd.N200/nrows.N200
+  mattime[2,3] <- avgtime
+  
+  avgtime <-  (time.bcstd.N50+time.bcstd.N100+time.bcstd.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mattime[2,4] <- avgtime
+  
+  #3level
+  avgtime <-  time.3level.N50/nrows.N50
+  mattime[3,1] <- avgtime
+  
+  avgtime <-  time.3level.N100/nrows.N100
+  mattime[3,2] <- avgtime
+  
+  avgtime <-  time.3level.N200/nrows.N200
+  mattime[3,3] <- avgtime
+  
+  avgtime <-  (time.3level.N50+time.3level.N100+time.3level.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mattime[3,4] <- avgtime
+  
+  
+  #bc3level
+  avgtime <-  time.bc3level.N50/nrows.N50
+  mattime[4,1] <- avgtime
+  
+  avgtime <-  time.bc3level.N100/nrows.N100
+  mattime[4,2] <- avgtime
+  
+  avgtime <-  time.bc3level.N200/nrows.N200
+  mattime[4,3] <- avgtime
+  
+  avgtime <-  (time.bc3level.N50+time.bc3level.N100+time.bc3level.N200)/(nrows.N50+nrows.N100+nrows.N200)
+  mattime[4,4] <- avgtime
+  
+  
+  
+
+  
+  
+  
+  #for (f in c("fvs","cycle","flow","mtz","directedconnectivity")){
+  
+  
+ 
+
+
+# data generation ---------------------------------------------------------
+#set.seed(1)
+#mat <- matrix(runif(6*5, min=40, max=100), 5, 6)
+#rownames(mat) <- c("CYC","TCYC","FLOW","MTZ","DCUT")
+#colnames(mat) <- c("SG","NG","H","T","R","ALL")
+
+#rownames(mat)
+
+#colnames(mat)
+
+
+  
+size <-T
+pdfname <- paste("optimal_",size,".pdf",sep="")
+
+pdf(pdfname)
+
+# plotting settings -------------------------------------------------------
+ylim <- c(-1,101)
+angle1 <- c(0,36,45,36)
+density1 <- c(30,100,20,0)
+col <- 1 # rainbow(7)
+#col <- c("tan", "orange1", "magenta", "cyan", "red")
+
+# plot --------------------------------------------------------------------
+#opar = par(oma = c(0,0,0,4)) # Large right margin for plot
+#opar = par(oma = c(3,3,1,4)) 
+opar = par(oma = c(0,0,2,0)) 
+barplot(mat, beside=TRUE, ylim=ylim,ylab="fraction in percent solved to optimality", col=col, angle=angle1, density=density1)
+
+if (FALSE){
+  for(i in 1:length(as.vector(mat))){
+    if(i<=4){
+      text(i+0.6, as.vector(mat)[i]+0.3, srt=90, pos=3, cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=5 & i<=8){
+      text(i+1.6, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=9 & i<=12){
+      text(i+2.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=13 & i<=16){
+      text(i+3.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } 
+  }
+}
+
+par(opar) # Reset par
+par(bg="transparent")
+#legend("topright", legend=rownames(mat), ncol=1, fill=TRUE, col=col, angle=angle1, density=density1,cex=0.75)
+legend("top", legend=rownames(mat), ncol=4, fill=TRUE, col=col, angle=angle1, density=density1,cex=0.75)
+opar = par(oma = c(0,0,0,0), mar = c(0,0,0,0), new = TRUE)
+
+
+dev.off()
+
+par(opar)
+
+
+
+size <-T
+pdfname <- paste("cputime_",size,".pdf",sep="")
+
+mat<- mattime
+
+pdf(pdfname)
+
+# plotting settings -------------------------------------------------------
+if(size=="Small"){
+  ylim <- c(-1,1001)
+}else{
+  ylim <- c(-1,3700)
+}
+
+angle1 <- c(0,36,45,36)
+density1 <- c(30,100,20,0)
+col <- 1 # rainbow(7)
+#col <- c("tan", "orange1", "magenta", "cyan", "red")
+
+# plot --------------------------------------------------------------------
+#opar = par(oma = c(0,0,0,4)) # Large right margin for plot
+#opar = par(oma = c(3,3,1,4)) 
+opar = par(oma = c(0,0,2,0)) 
+barplot(mat, beside=TRUE, ylim=ylim,ylab="average time in seconds", col=col, angle=angle1, density=density1)
+
+if (FALSE){
+  for(i in 1:length(as.vector(mat))){
+    if(i<=5){
+      text(i+0.6, as.vector(mat)[i]+0.3, srt=90, pos=3, cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=6 & i<=10){
+      text(i+1.6, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=11 & i<=15){
+      text(i+2.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=16 & i<=20){
+      text(i+3.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else if (i>=21 & i<=25){
+      text(i+4.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    } else {
+      text(i+5.5, as.vector(mat)[i]+0.3, srt=90, pos=3,cex=0.5, labels= format(round(as.vector(mat)[i], 1), nsmall = 1))
+    }
+  }
+}
+
+par(opar) # Reset par
+par(bg="transparent")
+#legend("topright", legend=rownames(mat), ncol=1, fill=TRUE, col=col, angle=angle1, density=density1,cex=0.75)
+legend("top", legend=rownames(mat), ncol=4, fill=TRUE, col=col, angle=angle1, density=density1,cex=0.75)
+opar = par(oma = c(0,0,0,0), mar = c(0,0,0,0), new = TRUE)
+
+
+dev.off()
+
+par(opar)
+
+
+

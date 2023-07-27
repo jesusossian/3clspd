@@ -1,0 +1,32 @@
+{
+    "id": "0EDA5F3D",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1600705348541.0,
+    "source_on_save": false,
+    "relative_order": 8,
+    "properties": {
+        "expression": "output",
+        "caption": "output",
+        "totalObservations": "17",
+        "displayedObservations": "17",
+        "variables": "17",
+        "cacheKey": "C7F7986C",
+        "object": "output",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=output&cache_key=C7F7986C&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 6,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1600705348541,
+    "read_only": false,
+    "read_only_alternatives": []
+}

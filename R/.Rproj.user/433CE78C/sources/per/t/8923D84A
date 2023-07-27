@@ -1,0 +1,32 @@
+{
+    "id": "8923D84A",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1615409555543.0,
+    "source_on_save": false,
+    "relative_order": 10,
+    "properties": {
+        "expression": "saidaranddpheurmc",
+        "caption": "saidaranddpheurmc",
+        "totalObservations": 480,
+        "displayedObservations": 480,
+        "variables": 11,
+        "cacheKey": "6DED7559",
+        "object": "saidaranddpheurmc",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=saidaranddpheurmc&cache_key=6DED7559&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 4926731577023616817,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1615409555543,
+    "read_only": false,
+    "read_only_alternatives": []
+}
